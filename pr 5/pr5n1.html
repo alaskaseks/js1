@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Document</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; }
+    button { font-size: 20px; padding: 6px 14px; cursor: pointer; }
+    .overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.6);
+      justify-content: center;
+      align-items: center;
+    }
+    .overlay.active { display: flex; }
+    .modal {
+      background: #e0ffff;
+      padding: 30px;
+      width: 500px;
+      text-align: center;
+    }
+    .modal h2 { margin-top: 0; }
+    .modal button { width: 100%; }
+  </style>
+</head>
+<body>
+  <script>
+    const openBtn = document.createElement('button');
+    openBtn.textContent = 'Open modal';
+
+    const overlay = document.createElement('div');
+    overlay.className = 'overlay';
+
+    const modal = document.createElement('div');
+    modal.className = 'modal';
+
+    const title = document.createElement('h2');
+    title.textContent = 'Hello from Modal Window!';
+
+    const closeBtn = document.createElement('button');
+    closeBtn.textContent = 'Close';
+
+    modal.append(title, closeBtn);
+    overlay.append(modal);
+    document.body.append(openBtn, overlay);
+
+    openBtn.addEventListener('click', () => overlay.classList.add('active'));
+    closeBtn.addEventListener('click', () => overlay.classList.remove('active'));
+  </script>
+</body>
+</html>

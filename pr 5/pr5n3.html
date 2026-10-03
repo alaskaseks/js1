@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Document</title>
+  <style>
+    body { background: #fbf1e8; font-family: serif; font-size: 20px; padding: 20px; }
+    li { cursor: pointer; }
+    li.active { background: #ffa982; }
+  </style>
+</head>
+<body>
+  <script>
+    const books = [
+      '"JavaScript for Kids: A Playful Introduction to Programming" by Nick Morgan',
+      '"Eloquent JavaScript: A Modern Introduction to Programming" by Marijn Haverbeke',
+      '"JavaScript: The Good Parts" by Douglas Crockford',
+      '"Programming JavaScript Applications: Robust Web Architecture with Node, HTML5, and Moderns JS Libraries" by Eric Elliott',
+      '"Effective JavaScript: 68 Specific Ways to Harness the Power of JavaScript" by David Herman',
+      '"JavaScript: The Definitive Guide" by David Flanagan',
+      '"You Don\'t Know JS" by Kyle Simpson'
+    ];
+    const list = document.createElement('ol');
+
+    books.forEach((text) => {
+      const li = document.createElement('li');
+      li.textContent = text;
+      list.append(li);
+    });
+    document.body.append(list);
+
+    let selected = null;
+
+    list.addEventListener('click', (e) => {
+      const li = e.target.closest('li');
+      if (!li) return;
+      if (selected) selected.classList.remove('active');
+
+      li.classList.add('active');
+      selected = li;
+    });
+  </script>
+</body>
+</html>

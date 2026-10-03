@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Document</title>
+  <style>
+    body { background: #fbf1e8; font-family: sans-serif; padding: 30px; }
+    .wrapper { display: flex; gap: 30px; align-items: center; }
+    .light {
+      display: flex;
+      gap: 20px;
+      padding: 20px;
+      border: 3px solid #888;
+      border-radius: 20px;
+    }
+    .circle {
+      width: 130px;
+      height: 130px;
+      border-radius: 50%;
+      background: #888;
+    }
+    .circle.red.on { background: red; }
+    .circle.yellow.on { background: orange; }
+    .circle.green.on { background: limegreen; }
+    #next {
+      width: 150px;
+      height: 190px;
+      font-size: 36px;
+      border: 3px solid #888;
+      border-radius: 20px;
+      background: #e0e0e0;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <script>
+    const colors = ['red', 'yellow', 'green'];
+    let current = 0;
+
+    const wrapper = document.createElement('div');
+    wrapper.className = 'wrapper';
+
+    const light = document.createElement('div');
+    light.className = 'light';
+
+    const circles = colors.map((color) => {
+      const c = document.createElement('div');
+      c.className = 'circle ' + color;
+      light.append(c);
+      return c;
+    });
+
+    const nextBtn = document.createElement('button');
+    nextBtn.id = 'next';
+    nextBtn.textContent = 'Next';
+
+    wrapper.append(light, nextBtn);
+    document.body.append(wrapper);
+
+    function render() {
+      circles.forEach((c, i) => c.classList.toggle('on', i === current));
+    }
+
+    nextBtn.addEventListener('click', () => {
+      current = (current + 1) % colors.length;
+      render();
+    });
+
+    render();
+  </script>
+</body>
+</html>
