@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Task List</title>
+<style>
+:root { --bg: #fafafa; --panel: #fff; --ink: #222; --muted: #888; --line: #e6e6e6; --accent: #3b82f6; }
+:root[data-theme="dark"] { --bg: #151515; --panel: #1e1e1e; --ink: #eee; --muted: #888; --line: #2e2e2e; --accent: #60a5fa; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: system-ui, sans-serif; }
+.wrap { max-width: 640px; margin: 0 auto; padding: 32px 16px; }
+header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+h1 { margin: 0; font-size: 1.6rem; font-weight: 600; }
+button { font: inherit; cursor: pointer; }
+#theme { background: none; border: 1px solid var(--line); color: var(--ink); border-radius: 8px; padding: 6px 12px; }
+form, .task { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 16px; }
+form { display: grid; gap: 10px; margin-bottom: 20px; }
+label { font-size: .85rem; color: var(--muted); display: grid; gap: 4px; }
+input, textarea { font: inherit; color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px; width: 100%; }
+textarea { resize: vertical; min-height: 70px; }
+input:disabled { opacity: .6; }
+input:focus, textarea:focus, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.add { background: var(--accent); color: #fff; border: 0; border-radius: 6px; padding: 10px; font-weight: 600; }
+#list { display: grid; gap: 10px; }
+.task { display: flex; justify-content: space-between; gap: 12px; }
+.task h3 { margin: 0 0 4px; font-size: 1rem; }
+.task p { margin: 0 0 8px; white-space: pre-wrap; overflow-wrap: anywhere; }
+.meta { font-size: .8rem; color: var(--muted); }
+.del { background: none; border: 0; color: var(--muted); font-size: 1.2rem; align-self: flex-start; }
+.del:hover { color: #e11d48; }
+.empty { text-align: center; color: var(--muted); padding: 24px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Task List</h1>
+    <button id="theme" type="button"></button>
+  </header>
+  <form>
+    <label>Title <input id="title" required></label>
+    <label>Description <textarea id="desc"></textarea></label>
+    <label>Deadline <input id="deadline" type="date" required></label>
+    <label>Created <input id="created" disabled></label>
+    <button class="add" type="submit">Add task</button>
+  </form>
+
+  <div id="list"></div>
+</div>
+<script>
+let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+const draft = JSON.parse(localStorage.getItem('draft')) || {};
+
+function setTheme(t) {
+  document.documentElement.dataset.theme = t;
+  document.getElementById('theme').textContent = t === 'dark' ? 'Light' : 'Dark';
+  localStorage.setItem('theme', t);
+}
+setTheme(localStorage.getItem('theme') || 'light');
+document.getElementById('theme').onclick = () => {
+  setTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark');
+};
+document.getElementById('created').value = new Date().toLocaleDateString('en-GB');
+document.getElementById('title').value = draft.title || '';
+document.getElementById('desc').value = draft.desc || '';
+document.getElementById('deadline').value = draft.deadline || '';
+
+document.getElementById('form').addEventListener('input', () => {
+  localStorage.setItem('draft', JSON.stringify({
+    title: document.getElementById('title').value,
+    desc: document.getElementById('desc').value,
+    deadline: document.getElementById('deadline').value
+  }));
+});
+document.getElementById('form').addEventListener('submit', e => {
+  e.preventDefault();
+  tasks.push({
+    id: Date.now(),
+    title: document.getElementById('title').value,
+    desc: document.getElementById('desc').value,
+    deadline: document.getElementById('deadline').value,
+    created: new Date().toLocaleDateString('en-GB')
+  });
+  localStorage.setItem('tasks', JSON.stringify(tasks));
+  localStorage.removeItem('draft');
+  e.target.reset();
+  document.getElementById('created').value = new Date().toLocaleDateString('en-GB');
+  render();
+});
+
+function el(tag, cls, text) {
+  const n = document.createElement(tag);
+  if (cls) n.className = cls;
+  if (text) n.textContent = text;
+  return n;
+}
+
+function render() {
+  const list = document.getElementById('list');
+  list.innerHTML = '';
+  if (!tasks.length) return list.append(el('div', 'empty', 'No tasks yet'));
+
+  for (const t of tasks) {
+    const card = el('div', 'task');
+    const body = el('div');
+    body.append(el('h3', '', t.title));
+    if (t.desc) body.append(el('p', '', t.desc));
+    body.append(el('div', 'meta', 'Deadline: ' + t.deadline + ' | Created: ' + t.created));
+
+    const del = el('button', 'del', '×');
+    del.onclick = () => {
+      tasks = tasks.filter(x => x.id !== t.id);
+      localStorage.setItem('tasks', JSON.stringify(tasks));
+      render();
+    };
+
+    card.append(body, del);
+    list.append(card);
+  }
+}
+render();
+</script>
+</body>
+</html>
