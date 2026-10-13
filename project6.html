@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>DOM tasks</title>
+<style>
+  body { font-family: sans-serif; padding: 20px; }
+  section { margin-bottom: 30px; }
+  #menu { position: fixed; display: none; margin: 0; padding: 4px 0; list-style: none;
+          background: #fff; border: 1px solid #888; box-shadow: 2px 2px 6px #0003; z-index: 99; }
+  #menu li { padding: 6px 16px; cursor: pointer; }
+  #menu li:hover { background: #ddd; }
+  #text, #editor { width: 400px; min-height: 100px; font-size: 16px; }
+  #frame { width: 300px; height: 100px; border: 2px solid #888; padding: 10px;
+           overflow: auto; resize: both; background: #fdf3e7; }
+  #square { width: 120px; height: 120px; background: rgb(35,35,35); }
+  .row { display: flex; align-items: center; gap: 8px; }
+</style>
+</head>
+<body>
+
+<section>
+  <h3>1. Custom context menu (right click anywhere)</h3>
+</section>
+<ul id="menu"></ul>
+
+<section>
+  <h3>2. Ctrl+E to edit, Ctrl+S to save</h3>
+  <div id="text">Lorem Ipsum is simply dummy text of the printing and typesetting industry.</div>
+</section>
+
+<section>
+  <h3>3. Drag the bottom right corner to resize</h3>
+  <div id="frame">Lorem Ipsum is simply dummy text of the printing and typesetting industry.</div>
+</section>
+
+<section>
+  <h3>4. RGB</h3>
+  <div id="square"></div>
+  <div class="row">R <input type="range" min="0" max="255" value="35"> <b>35</b></div>
+  <div class="row">G <input type="range" min="0" max="255" value="35"> <b>35</b></div>
+  <div class="row">B <input type="range" min="0" max="255" value="35"> <b>35</b></div>
+</section>
+
+<script>
+  const $ = id => document.getElementById(id);
+
+  const menu = $('menu');
+  const items = [
+    ['Reload', () => location.reload()],
+    ['Scroll to top', () => scrollTo(0, 0)],
+    ['Print', () => print()]
+  ];
+  items.forEach(([name, fn]) => {
+    const li = document.createElement('li');
+    li.textContent = name;
+    li.onclick = fn;
+    menu.append(li);
+  });
+  document.addEventListener('contextmenu', e => {
+    e.preventDefault();
+    menu.style.left = e.clientX + 'px';
+    menu.style.top = e.clientY + 'px';
+    menu.style.display = 'block';
+  });
+  document.addEventListener('click', () => menu.style.display = 'none');
+  const text = $('text');
+  let ta = null;
+  document.addEventListener('keydown', e => {
+    if (!e.ctrlKey) return;
+    if (e.code === 'KeyE') {
+      e.preventDefault();
+      if (ta) return;
+      ta = document.createElement('textarea');
+      ta.id = 'editor';
+      ta.value = text.textContent;
+      text.replaceWith(ta);
+      ta.focus();
+    }
+    if (e.code === 'KeyS') {
+      e.preventDefault();
+      if (!ta) return;
+      text.textContent = ta.value;
+      ta.replaceWith(text);
+      ta = null;
+    }
+  });
+  const sliders = document.querySelectorAll('input[type=range]');
+  sliders.forEach(s => s.addEventListener('input', () => {
+    s.nextElementSibling.textContent = s.value;
+    $('square').style.background = `rgb(${[...sliders].map(x => x.value)})`;
+  }));
+</script>
+</body>
+</html>
