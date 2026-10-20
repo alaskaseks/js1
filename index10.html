@@ -1,0 +1,141 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Products API</title>
+</head>
+<body>
+
+    <h1>Products</h1>
+
+    <input id="search" placeholder="Search products">
+    <button onclick="searchProducts()">Search</button>
+    <button onclick="getProducts()">All products</button>
+
+    <br><br>
+
+    <input id="id" type="number" placeholder="Product ID">
+    <button onclick="getProduct()">Get product</button>
+
+    <br><br>
+
+    <input id="limit" type="number" placeholder="Limit">
+    <input id="skip" type="number" placeholder="Skip">
+    <button onclick="limitProducts()">Limit and skip</button>
+
+    <br><br>
+
+    <select id="sort">
+        <option value="title">Title</option>
+        <option value="price">Price</option>
+        <option value="rating">Rating</option>
+    </select>
+
+    <select id="order">
+        <option value="asc">Ascending</option>
+        <option value="desc">Descending</option>
+    </select>
+
+    <button onclick="sortProducts()">Sort</button>
+
+    <h2>Add product</h2>
+    <input id="title" placeholder="Product title">
+    <input id="price" type="number" placeholder="Price">
+    <button onclick="addProduct()">Add</button>
+
+    <h2>Update product</h2>
+    <input id="updateId" type="number" placeholder="Product ID">
+    <input id="updateTitle" placeholder="New title">
+    <button onclick="updateProduct()">Update</button>
+
+    <h2>Result</h2>
+    <pre id="result"></pre>
+
+    <script>
+        const url = "https://dummyjson.com/products";
+
+        function showData(data) {
+            document.getElementById("result").textContent =
+                JSON.stringify(data, null, 2);
+        }
+
+        function getProducts() {
+            fetch(url)
+                .then(res => res.json())
+                .then(data => showData(data.products));
+        }
+
+        function getProduct() {
+            let id = document.getElementById("id").value;
+
+            fetch(url + "/" + id)
+                .then(res => res.json())
+                .then(data => showData(data));
+        }
+
+        function searchProducts() {
+            let search = document.getElementById("search").value;
+
+            fetch(url + "/search?q=" + search)
+                .then(res => res.json())
+                .then(data => showData(data.products));
+        }
+        function limitProducts() {
+            let limit = document.getElementById("limit").value;
+            let skip = document.getElementById("skip").value;
+
+            fetch(url + "?limit=" + limit + "&skip=" + skip)
+                .then(res => res.json())
+                .then(data => showData(data.products));
+        }
+
+        function sortProducts() {
+            let sort = document.getElementById("sort").value;
+            let order = document.getElementById("order").value;
+
+            fetch(url + "?sortBy=" + sort + "&order=" + order)
+                .then(res => res.json())
+                .then(data => showData(data.products));
+        }
+
+        function addProduct() {
+            let title = document.getElementById("title").value;
+            let price = Number(document.getElementById("price").value);
+
+            fetch(url + "/add", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    title: title,
+                    price: price
+                })
+            })
+                .then(res => res.json())
+                .then(data => showData(data));
+        }
+
+        function updateProduct() {
+            let id = document.getElementById("updateId").value;
+            let title = document.getElementById("updateTitle").value;
+
+            fetch(url + "/" + id, {
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    title: title
+                })
+            })
+                .then(res => res.json())
+                .then(data => showData(data));
+        }
+
+        getProducts();
+    </script>
+
+</body>
+</html>
